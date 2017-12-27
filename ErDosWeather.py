@@ -1,39 +1,46 @@
 # coding=utf8
 import requests
-import docx
+from docx import Document
 from bs4 import BeautifulSoup
 
-# for index, weatherLine in enumerate(weatherLines):
-#       print(index, weatherLine)
 
-# for i in range(20):
-#       if i < 10:
-#             print(weatherLines[1 + i * 8])
-#       else:
-#             print(weatherLines[2 + i * 8])
-
-d =  docx.Document('weatherTemplate.docx')
-for table in d.tables:
-    for row in table.rows:
-        for cell in row.cells:
-            print(cell.text)
-
-
-def weatherraw():
+def pagecontent():
+    # TODO 需要catch
     url = 'http://wisdom.tqonline.top/weiqixiang/tianqi/getforecastbystations?' \
-             'stations=[53562,53469,53475,53484,53487,54449,53478,53574,53578,53575]'
+             'stations=[53553,53562,53469,53475,53484,53487,54449,53478,53574,53578,53575]'
     r = requests.get(url)
     weathersoup = BeautifulSoup(r.content, "html.parser")
     return weathersoup.body
 
 
-def weatherlist():
-    weatherrawlines = str(weatherraw()).split("<br/>")
-    for index, weatherLine in enumerate(weatherrawlines):
-        weatherrawlines[index] = weatherrawlines[index].strip()
-    while '' in weatherrawlines:
-        weatherrawlines.remove('')
+def weatherlines():
+    pagelines = str(pagecontent()).split("<br/>")
+    weatherrawlines = [n.strip() for n in pagelines if (n.strip() != '') and (n.find('<') < 0) ]
     return weatherrawlines
 
 
+def weatherdocx():
+    d = Document('weatherTemplate.docx')
+    t = d.tables[0]
+    for column in range(len(t.columns)):
+        for row in range(len(t.rows)):
+            print('(' + str(row) + ',' + str(column) + ')' + t.cell(row, column).text)
 
+
+if __name__ == '__main__':
+    weatherlines = weatherlines()
+    # TODO:需要对行数进行判断是否有内容或内容页数
+    for index, weatherline in enumerate(weatherlines):
+        print(index, ':', weatherline)
+    # weatherlineone = weatherlines[:int(len(weatherlines)/2)]
+    # for index, w in enumerate(weatherlineone):
+    #     print(index,':', w)
+    # weatherlinetwo = weatherlines[int(len(weatherlines)/2):]
+    # for index, w in enumerate(weatherlinetwo):
+    #     print(index, ':', w)
+    #
+    # 录入行数分别是1-7，9-15等下标
+    # for j in range(int(len(weatherlines) / 8)):
+    #     for i in range(1, 8):
+    #         print(weatherlines[i + j * 8])
+    #     print('-----------------------')

@@ -1,3 +1,4 @@
+#! python3
 # coding=utf8
 import requests
 from datetime import datetime, timedelta
@@ -14,6 +15,7 @@ def pagecontent(code):
         return weathersoup.body
     except requests.Timeout:
         print('呀，网络好像出现了一些问题，重新运行一次吧')
+        return None
 
 
 def pagelines(code):
@@ -104,12 +106,3 @@ if __name__ == '__main__':
                 # 如果页面有8点及16点版本则更新
                 d16 = Document(dt.strftime('%Y%m%d') + '16.docx')
                 weatherdocx(weatherweeks[1], d16, index)
-    # for (cityname, citycode) in cityList.items():
-    #     weatherlist = weatherlines(citycode)
-    # weatherlineone = weatherlines[:int(len(weatherlines)/2)]
-    # for index, w in enumerate(weatherlineone):
-    #     print(index,':', w)
-    # weatherlinetwo = weatherlines[int(len(weatherlines)/2):]
-    # for index, w in enumerate(weatherlinetwo):
-    #     print(index, ':', w)
-    #

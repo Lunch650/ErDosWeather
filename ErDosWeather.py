@@ -104,5 +104,5 @@ if __name__ == '__main__':
             weatherdocx(weatherweeks[0], doc8name, index)
             if len(weatherweeks) > 1:
                 # 如果页面有8点及16点版本则更新
-                d16 = Document(dt.strftime('%Y%m%d') + '16.docx')
-                weatherdocx(weatherweeks[1], d16, index)
+                d16name = dt.strftime('%Y%m%d') + '16.docx'
+                weatherdocx(weatherweeks[1], d16name, index)

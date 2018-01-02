@@ -2,7 +2,21 @@
 # coding=utf8
 import requests
 from bs4 import BeautifulSoup
+from docx import Document
+from datetime import datetime, timedelta
 
+def predocx():
+    # 由模板生成两个word文件，分别对应8点钟版本及16点版本，并修改模板中的时间
+    dt = datetime.now()
+    d = Document('weatherTemplate.docx')
+    d.paragraphs[1].text = '(' + dt.strftime('%Y') + '年第' + dt.strftime('%W') + '期）'
+    d.paragraphs[3].text = dt.strftime('%Y') + '年' + dt.strftime('%m') + '月' + dt.strftime('%d') + '日'
+    t = d.tables[0]
+    for column in range(1, 8):
+        dttemp = dt + timedelta(days=column)
+        t.cell(0, column + 2).text = (dttemp.strftime('%m') + '月' + dttemp.strftime('%d') + '日')
+    d.save(dt.strftime('%Y%m%d') + '08.docx')
+    d.save(dt.strftime('%Y%m%d') + '16.docx')
 
 class City(object):
     def __init__(self, city_name, city_code):
@@ -62,9 +76,20 @@ class City(object):
                 ]
         return week
 
-    def save_doc(self, path, doc_name, content):
+    def save_doc(self, path, doc_name, weekly_weather, start_row):
+        doc = Document(path + doc_name)
+        t = doc.tables[0]
+        for column, daily_weather in enumerate(weekly_weather):
+            daily_weather = self.format_daily(daily_weather)
+            for row, daily_element in enumerate(daily_weather):
+                t.cell((start_row * 3) + row + 1, column + 3).text = daily_element
+        doc.save(path + doc_name)
 
-    def pre_doc_content(self, pre_content):
+    @staticmethod
+    def format_daily(daily_weather):
+        templist = daily_weather.split('，')
+        temperature = templist[2][4:-1] + '~' + templist[3][4:-2]
+        return [templist[0], temperature, templist[1]]
 
 
 a = City('aaa', '53478')

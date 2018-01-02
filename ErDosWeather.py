@@ -33,7 +33,7 @@ def weatherlines(prelist):
         print('报歉，' + str(prelist[0])[:-1] + '暂无预报数据。')
         return []
     elif prelist.count('报歉，暂无预报数据。') == 1:
-        weatherweek = [[d[d.index('：') + 1:] for d in prelist[1:prelist[1:].index(prelist[0])+1]], ]
+        weatherweek = [[d[d.index('：') + 1:] for d in prelist[1:prelist[1:].index(prelist[0]) + 1]], ]
         return weatherweek
     else:
         weatherweek = \

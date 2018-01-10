@@ -1,4 +1,3 @@
-#! python3
 # coding=utf8
 import requests
 from bs4 import BeautifulSoup
@@ -20,17 +19,17 @@ class City(object):
     def content_from_page(self):
         # 利用request模块获取页面数据
         # 返回bs4模块解析后的body内容
-        request = None
-        while request is None:
+        r = None
+        while r is None:
             try:
-                request = requests.get(City.url, params=self.__param, timeout=10)
+                r = requests.get(City.url, params=self.__param, timeout=10)
             except requests.Timeout:
                 print(self.__name + 'mission:页面加载连接超时，加载任务重新启动中')
-        return BeautifulSoup(request.content, 'html.parser').body
+        return BeautifulSoup(r.content, 'html.parser').body
 
     @staticmethod
     def weekly_weather(mess_str):
-        # 清洗页面返回的字符串内容,并根据内容将返回内容分开，返回内容格式为list
+        # 清洗页面返回的字符串内容,并根据内容将返回内容分开为两个list，返回内容格式为list
         if mess_str is not '':
             temp_split = str(mess_str).split("<br/>")
             temp_list = [n.strip() for n in temp_split if (n.strip() != '') and (n.find('<') < 0)]
@@ -96,6 +95,24 @@ class City(object):
         d.save(dt.strftime('%Y%m%d') + '08.docx')
         d.save(dt.strftime('%Y%m%d') + '16.docx')
 
-
-a = City('aaa', '53478')
-print(City.weekly_weather(a.content_from_page()))
+if __name__ == '__main__':
+    a = City( '准格尔旗', '53553')
+    print(City.weekly_weather(a.content_from_page()))
+    cities = {
+        '53553': '准格尔旗',
+        '53562': '清水河县',
+        '53484': '丰镇',
+        '53487': '大同',
+        '54449': '秦皇岛',
+        '53469': '和林格尔县',
+        '53475': '凉城',
+        '53478': '右玉',
+        '53574': '平鲁',
+        '53578': '朔州',
+        '53575': '神池',
+    }
+    cities_order = \
+        [
+            '53553', '53562', '53469', '53475', '53484', '53487', '54449',
+            '53469', '53475', '53478', '53574', '53578', '53575',
+        ]

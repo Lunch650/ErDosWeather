@@ -1,12 +1,17 @@
+#!python3
 # coding=utf8
 import requests
 from bs4 import BeautifulSoup
 from docx import Document
+from docx.opc.exceptions import PackageNotFoundError
 from datetime import datetime, timedelta
 
 
 class City(object):
     url = 'http://wisdom.tqonline.top/weiqixiang/tianqi/getforecastbystations'
+    doc_names = [datetime.now().strftime('%Y%m%d') + '08.docx',
+                 datetime.now().strftime('%Y%m%d') + '16.docx'
+                 ]
 
     def __init__(self, city_name, city_code):
         self.__name = city_name
@@ -84,20 +89,23 @@ class City(object):
     @staticmethod
     def predocx():
         # 由模板生成两个word文件，分别对应8点钟版本及16点版本，并修改模板中的时间
+        try:
+            d = Document('weatherTemplate.docx')
+        except PackageNotFoundError:
+            print("模板文件不存在,请将weatherTemplate.docx文件放到文件夹后再执行一遍")
+            return None
         dt = datetime.now()
-        d = Document('weatherTemplate.docx')
         d.paragraphs[1].text = '(' + dt.strftime('%Y') + '年第' + dt.strftime('%W') + '期）'
         d.paragraphs[3].text = dt.strftime('%Y') + '年' + dt.strftime('%m') + '月' + dt.strftime('%d') + '日'
         t = d.tables[0]
         for column in range(1, 8):
             dttemp = dt + timedelta(days=column)
             t.cell(0, column + 2).text = (dttemp.strftime('%m') + '月' + dttemp.strftime('%d') + '日')
-        d.save(dt.strftime('%Y%m%d') + '08.docx')
-        d.save(dt.strftime('%Y%m%d') + '16.docx')
+        for doc_name in City.doc_names:
+            d.save(doc_name)
+
 
 if __name__ == '__main__':
-    a = City( '准格尔旗', '53553')
-    print(City.weekly_weather(a.content_from_page()))
     cities = {
         '53553': '准格尔旗',
         '53562': '清水河县',
@@ -116,3 +124,9 @@ if __name__ == '__main__':
             '53553', '53562', '53469', '53475', '53484', '53487', '54449',
             '53469', '53475', '53478', '53574', '53578', '53575',
         ]
+
+    if City.predocx() is not None:
+        # 如果正确生成了当天文件
+        for i, code in enumerate(cities_order):
+            city = City(cities.get(code), code)
+            # 当前思路为利用多线程抓取页面数据，随后组成一个列表执行写入操作

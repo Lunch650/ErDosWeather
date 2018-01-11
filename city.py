@@ -3,7 +3,6 @@
 import requests
 from bs4 import BeautifulSoup
 from docx import Document
-from docx.opc.exceptions import PackageNotFoundError
 from datetime import datetime, timedelta
 
 
@@ -46,7 +45,7 @@ class City(object):
     @staticmethod
     def separated_list(prelist):
         if prelist is []:
-            print('找不到需要处理的列表')
+            print('找不到需要处理的列表，建议检查网站是否发布数据')
             return None
         if prelist.count('报歉，暂无预报数据。') == 2:
             print('报歉，' + str(prelist[0])[:-1] + '还未发布数据。')
@@ -89,11 +88,7 @@ class City(object):
     @staticmethod
     def predocx():
         # 由模板生成两个word文件，分别对应8点钟版本及16点版本，并修改模板中的时间
-        try:
-            d = Document('weatherTemplate.docx')
-        except PackageNotFoundError:
-            print("模板文件不存在,请将weatherTemplate.docx文件放到文件夹后再执行一遍")
-            return None
+        d = Document('weatherTemplate.docx')
         dt = datetime.now()
         d.paragraphs[1].text = '(' + dt.strftime('%Y') + '年第' + dt.strftime('%W') + '期）'
         d.paragraphs[3].text = dt.strftime('%Y') + '年' + dt.strftime('%m') + '月' + dt.strftime('%d') + '日'
@@ -106,27 +101,36 @@ class City(object):
 
 
 if __name__ == '__main__':
-    cities = {
-        '53553': '准格尔旗',
-        '53562': '清水河县',
-        '53484': '丰镇',
-        '53487': '大同',
-        '54449': '秦皇岛',
-        '53469': '和林格尔县',
-        '53475': '凉城',
-        '53478': '右玉',
-        '53574': '平鲁',
-        '53578': '朔州',
-        '53575': '神池',
-    }
-    cities_order = \
-        [
-            '53553', '53562', '53469', '53475', '53484', '53487', '54449',
-            '53469', '53475', '53478', '53574', '53578', '53575',
-        ]
+    def __main():
+        cities = {
+            '53553': '准格尔旗',
+            '53562': '清水河县',
+            '53484': '丰镇',
+            '53487': '大同',
+            '54449': '秦皇岛',
+            '53469': '和林格尔县',
+            '53475': '凉城',
+            '53478': '右玉',
+            '53574': '平鲁',
+            '53578': '朔州',
+            '53575': '神池',
+        }
+        cities_order = \
+            [
+                '53553', '53562', '53469', '53475', '53484', '53487', '54449',
+                '53469', '53475', '53478', '53574', '53578', '53575',
+            ]
 
-    if City.predocx() is not None:
-        # 如果正确生成了当天文件
+        City.predocx()
+        print('今日数据模板准备完毕')
         for i, code in enumerate(cities_order):
             city = City(cities.get(code), code)
-            # 当前思路为利用多线程抓取页面数据，随后组成一个列表执行写入操作
+            weather = City.weekly_weather(city.content_from_page())
+            if len(weather) > 0:
+                City.save_doc(doc_name=City.doc_names[0], weekly_weather=weather[0], start_row=i)
+                print(cities.get(code), '8点版本写入完成')
+                if len(weather) > 1:
+                    City.save_doc(doc_name=City.doc_names[1], weekly_weather=weather[1], start_row=i)
+                    print(cities.get(code), '16点版本写入完成')
+
+    __main()

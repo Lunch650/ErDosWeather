@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 class City(object):
     url = 'http://wisdom.tqonline.top/weiqixiang/tianqi/getforecastbystations'
     doc_names = [datetime.now().strftime('%Y%m%d') + '08.docx',
-                 datetime.now().strftime('%Y%m%d') + '16.docx'
+                 datetime.now().strftime('%Y%m%d') + '20.docx'
                  ]
 
     def __init__(self, city_name, city_code):
@@ -28,10 +28,9 @@ class City(object):
             try:
                 r = requests.get(City.url, params=self.__param, timeout=10)
             except requests.Timeout:
-                print(self.__name + 'mission:页面加载连接超时，加载任务重新启动中')
+                print(self.__name + ':页面加载连接超时，加载任务重新启动中')
         return BeautifulSoup(r.content, 'html.parser').body
 
-    @staticmethod
     def weekly_weather(mess_str):
         # 清洗页面返回的字符串内容,并根据内容将返回内容分开为两个list，返回内容格式为list
         if mess_str is not '':
@@ -87,7 +86,7 @@ class City(object):
 
     @staticmethod
     def predocx():
-        # 由模板生成两个word文件，分别对应8点钟版本及16点版本，并修改模板中的时间
+        # 由模板生成两个word文件，分别对应8点钟版本及20点版本，并修改模板中的时间
         d = Document('weatherTemplate.docx')
         dt = datetime.now()
         d.paragraphs[1].text = '(' + dt.strftime('%Y') + '年第' + dt.strftime('%W') + '期）'
@@ -131,6 +130,6 @@ if __name__ == '__main__':
                 print(cities.get(code), '8点版本写入完成')
                 if len(weather) > 1:
                     City.save_doc(doc_name=City.doc_names[1], weekly_weather=weather[1], start_row=i)
-                    print(cities.get(code), '16点版本写入完成')
+                    print(cities.get(code), '20点版本写入完成')
 
     __main()

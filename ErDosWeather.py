@@ -61,7 +61,7 @@ def weatherdocx(weatherweek, docname, startrow):
 
 
 def predocx():
-    # 由模板生成两个word文件，分别对应8点钟版本及16点版本，并修改模板中的时间
+    # 由模板生成两个word文件，分别对应8点钟版本及20点版本，并修改模板中的时间
     d = Document('weatherTemplate.docx')
     d.paragraphs[1].text = '(' + dt.strftime('%Y') + '年第' + dt.strftime('%W') + '期）'
     d.paragraphs[3].text = dt.strftime('%Y') + '年' + dt.strftime('%m') + '月' + dt.strftime('%d') + '日'
@@ -70,7 +70,7 @@ def predocx():
         dttemp = dt + timedelta(days=i)
         t.cell(0, i + 2).text = (dttemp.strftime('%m') + '月' + dttemp.strftime('%d') + '日')
     d.save(dt.strftime('%Y%m%d') + '08.docx')
-    d.save(dt.strftime('%Y%m%d') + '16.docx')
+    d.save(dt.strftime('%Y%m%d') + '20.docx')
 
 
 if __name__ == '__main__':
@@ -103,6 +103,6 @@ if __name__ == '__main__':
             doc8name = dt.strftime('%Y%m%d') + '08.docx'
             weatherdocx(weatherweeks[0], doc8name, index)
             if len(weatherweeks) > 1:
-                # 如果页面有8点及16点版本则更新
-                d16name = dt.strftime('%Y%m%d') + '16.docx'
-                weatherdocx(weatherweeks[1], d16name, index)
+                # 如果页面有8点及20点版本则更新
+                d20name = dt.strftime('%Y%m%d') + '20.docx'
+                weatherdocx(weatherweeks[1], d20name, index)
